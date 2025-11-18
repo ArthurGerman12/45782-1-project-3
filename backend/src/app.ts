@@ -6,8 +6,8 @@ import config from 'config'
 import sequelize from './db/sequelize';
 import enforceAuth from './middlewares/enforce-auth';
 import cors from 'cors'
-import { createAppBucketIfNotExists, testUpload } from './aws/aws';
 import fileUpload from 'express-fileupload';
+import feedRouter from './routers/feed'
 
 const app = express()
 
@@ -25,7 +25,7 @@ app.use(json())
 app.use(fileUpload())
 
 // load routers
-
+app.use('/feed', feedRouter)
 app.use(enforceAuth)
 
 
@@ -42,10 +42,7 @@ app.use(responder);
     // i.e syncs our TypeScript models folder into the actual SQL Schema
     // sequelize.sync({ force: true })
     await sequelize.sync({ force: process.argv[2] === 'sync' })
-
-    await createAppBucketIfNotExists()
-    // testUpload()
-
+    
     console.log(process.argv)
 
     app.listen(port, () => console.log(`${appName} started on port ${port}`))
