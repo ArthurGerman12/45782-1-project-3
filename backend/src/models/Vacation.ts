@@ -35,7 +35,7 @@ export default class Vacation extends Model {
     @Column(DataType.STRING)
     image: string;
 
-    // Vacations have many followers
     @BelongsToMany(() => User, () => Follow)
-    followers: User[];
+    users!: User[];
+
 }

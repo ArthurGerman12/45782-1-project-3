@@ -12,6 +12,13 @@ declare global {
     }
 }
 
+export interface AuthRequest extends Request {
+  user?: {
+    id: string;
+    role: string;
+  };
+}
+
 export default function enforceAuth(req: Request, res: Response, next: NextFunction) {
 
     const jwtSecret = config.get<string>('app.jwtSecret')

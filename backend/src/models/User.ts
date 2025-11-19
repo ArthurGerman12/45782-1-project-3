@@ -15,6 +15,10 @@ export default class User extends Model {
     @Column(DataType.STRING)
     firstName: string;
     
+    @Default('user')
+    @Column(DataType.ENUM('user', 'admin'))
+    role: 'user' | 'admin';
+    
     @AllowNull(false)
     @Column(DataType.STRING)
     lastName: string;
@@ -27,7 +31,7 @@ export default class User extends Model {
     @Column(DataType.STRING)
     password: string;
 
-    // Users follow many vacations
     @BelongsToMany(() => Vacation, () => Follow)
-    followedVacations: Vacation[];
+    vacations!: Vacation[];
+
 }
