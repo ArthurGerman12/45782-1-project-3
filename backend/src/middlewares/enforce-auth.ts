@@ -4,55 +4,30 @@ import config from 'config'
 import User from "../models/User";
 import Joi from "joi";
 
-declare global {
-    namespace Express {
-        interface Request {
-            userId: string
-        }
-    }
-}
-
-export interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    role: string;
-  };
-}
 
 export default function enforceAuth(req: Request, res: Response, next: NextFunction) {
+  const jwtSecret = config.get<string>("app.jwtSecret");
 
-    const jwtSecret = config.get<string>('app.jwtSecret')
+  const authHeader = req.get("Authorization");
+  if (!authHeader) return next({ status: 401, message: "missing Authorization header" });
 
-    const authHeader = req.get('Authorization') // this will get the value for the Authorization header
+  if (!authHeader.startsWith("Bearer"))
+    return next({ status: 401, message: "missing Bearer keyword" });
 
-    if (!authHeader) return next({
-        status: 401,
-        message: 'missing Authorization header'
-    })
+  const jwt = authHeader.split(" ")[1];
+  if (!jwt) return next({ status: 401, message: "missing jwt" });
 
-    if (!authHeader.startsWith('Bearer')) return next({
-        status: 401,
-        message: 'missing Bearer keyword'
-    })
+  try {
+    const user = verify(jwt, jwtSecret) as any;
 
-    const parts = authHeader.split(' ')
-    const jwt = parts[1]
+    req.userId = user.id;
+    req.user = {
+      id: user.id,
+      role: user.role
+    };
 
-    if (!jwt) return next({
-        status: 401,
-        message: 'missing jwt'
-    })
-
-    try {
-        const user = verify(jwt, jwtSecret) as User
-        req.userId = user.id
-        console.log(user)
-        next()
-
-    } catch (e) {
-        next({
-            status: 401,
-            message: 'invalid jwt'
-        })
-    }
+    next();
+  } catch (e) {
+    next({ status: 401, message: "invalid jwt" });
+  }
 }

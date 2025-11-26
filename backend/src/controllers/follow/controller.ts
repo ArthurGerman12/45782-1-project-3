@@ -3,6 +3,7 @@ import User from "../../models/User";
 import Follow from "../../models/Follow";
 import socket from "../../io/io";
 import SocketMessages from "socket-enums-shaharsolllllll";
+import Vacation from "../../models/Vacation";
 
 
 export async function follow(req: Request<{ id: string }>, res: Response, next: NextFunction) {
@@ -10,7 +11,7 @@ export async function follow(req: Request<{ id: string }>, res: Response, next: 
 
         const existing = await Follow.findOne({
             where: {
-                followerId: req.userId,
+                userId: req.userId,
                 vacationId: req.params.id
             }
         })
@@ -18,18 +19,18 @@ export async function follow(req: Request<{ id: string }>, res: Response, next: 
         if (existing) throw new Error('follow already exists')
 
         const follow = await Follow.create({
-            followerId: req.userId,
+            userId: req.userId,
             vacationId: req.params.id
         })
         res.json(follow)
 
         const vacation = (await User.findByPk(req.params.id)).get({plain: true})
-        const follower = (await User.findByPk(req.userId)).get({plain: true})
+        const user = (await User.findByPk(req.userId)).get({plain: true})
 
         socket.emit(SocketMessages.NewFollow, {
             from: req.get('x-client-id'),
             vacation,
-            follower
+            user
         })
 
     } catch (e) {
@@ -46,8 +47,8 @@ export async function getVacations(req: Request, res: Response, next: NextFuncti
 
         const { vacations } = await User.findByPk(req.userId, {
             include: [{
-                model: User,
-                as: 'following'
+                model: Vacation,
+                as: 'vacations'
             }]
         })
 
@@ -62,7 +63,7 @@ export async function unfollow(req: Request<{ id: string }>, res: Response, next
     try {
         const follow = await Follow.findOne({
             where: {
-                followerId: req.userId,
+                userId: req.userId,
                 vacationId: req.params.id
             }
         })
