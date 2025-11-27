@@ -12,12 +12,12 @@ import requireRole from "../middlewares/require-role";
 
 const router = Router();
 
-// block admins for any follow-related route
-
+//user routing 
 router.get("/following",forbidAdmins, getVacations);
 router.post("/follow/:id" ,forbidAdmins, paramValidation(followValidator), follow);
 router.post("/unfollow/:id", forbidAdmins, paramValidation(unfollowValidator), unfollow);
 
+//admin routing 
 router.post('/create-vacation',requireRole("admin"),fileUploader, fileValidation(newVacationImageValidator), validation(newVacationValidator), createVacation);
 router.post('/delete-vacation/:vacationId',requireRole("admin"), deleteVacation)
 router.patch('/update-vacation/:vacationId', requireRole("admin"), fileUploader, fileValidation(newVacationImageValidator), validation(updateVacationValidator), updateVacation)
