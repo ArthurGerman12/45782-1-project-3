@@ -1,8 +1,8 @@
-import { Response, NextFunction } from "express";
-import { AuthRequest } from "./enforce-auth";
+import "express"; // ensures augmentation is loaded
+import { Request, Response, NextFunction } from "express";
 
-export function requireRole(role: string) {
-  return function (req: AuthRequest, res: Response, next: NextFunction) {
+export default function requireRole(role: string) {
+  return function (req: Request, res: Response, next: NextFunction) {
     if (!req.user) {
       return res.status(401).json({ message: "Not authenticated" });
     }

@@ -10,10 +10,23 @@
         "port": 3306,
         "username": "root",
         "password": "",
-        "database": "vacation"
+        "database": "vacations"
     },
     "io": {
         "host": "localhost",
         "port": 3004
+    },
+    "s3": {
+        "bucket": "arthur.images.vacation.com",
+        "isLocalStack": true,
+        "connection": {
+            "endpoint": "http://localhost:4566",
+            "region": "us-east-1",
+            "credentials": {
+                "accessKeyId": "test",
+                "secretAccessKey": "test"
+            },
+            "forcePathStyle": true
+        }
     }
 }

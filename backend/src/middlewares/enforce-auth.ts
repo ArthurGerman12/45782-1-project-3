@@ -4,6 +4,17 @@ import config from 'config'
 import User from "../models/User";
 import Joi from "joi";
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        role: string;
+      };
+      userId?: string;
+    }
+  }
+}
 
 export default function enforceAuth(req: Request, res: Response, next: NextFunction) {
   const jwtSecret = config.get<string>("app.jwtSecret");

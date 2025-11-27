@@ -4,7 +4,7 @@ const vacationIncludes = {
   include: [
     {
       model: User,
-      attributes: ['id'],
+      attributes: ['id', 'firstName', 'lastName'],
       through: { attributes: [] }
     }
   ]

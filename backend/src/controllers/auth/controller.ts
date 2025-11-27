@@ -4,7 +4,7 @@ import config from 'config'
 import { createHmac } from "crypto";
 import { sign } from "jsonwebtoken";
 
-function hashAndSaltPassword(plainTextPassword: string): string {
+export function hashAndSaltPassword(plainTextPassword: string): string {
     const secret = config.get<string>('app.secret')
     return createHmac('sha256', secret).update(plainTextPassword).digest('hex')
 }
@@ -29,20 +29,27 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
         const user = await User.findOne({
             where: {
-                username: req.body.username,
+                email: req.body.email,
                 password: hashAndSaltPassword(req.body.password)
             }
         })
-        if (!user) throw new Error('invalid username and/or password')
+
+        if (!user) throw new Error('invalid email and/or password')
+
         const plainData = user.get({ plain: true })
         delete plainData.password
+
         const jwt = sign(plainData, jwtSecret)
         res.json({ jwt })
+
     } catch (e) {
-        if (e.message === 'invalid username and/or password') return next({
-            status: 401,
-            message: 'stop hacking me yo, what the hell man this really disturbs me yo'
-        })
+        if (e.message === 'invalid email and/or password') {
+            return next({
+                status: 401,
+                message: 'Invalid email or password'
+            })
+        }
         next(e)
     }
 }
+

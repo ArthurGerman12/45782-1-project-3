@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import Vacation from "../../models/Vacation";
 import User from "../../models/User";
-import { newPostValidator } from "./validation";
+import { newVacationValidator } from "./validation";
 import socket from "../../io/io";
 import SocketMessages from "socket-enums-shaharsolllllll";
 import vacationIncludes from "../common/vacation-includes";
 
 
-export async function deletePost(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+export async function deleteVacation(req: Request<{ vacationId: string }>, res: Response, next: NextFunction) {
     try {
-        const { id } = req.params
-        const deletedRows = await Vacation.destroy({ where: { id } })
+        const { vacationId } = req.params
+        const deletedRows = await Vacation.destroy({ where: { vacationId } })
         if (deletedRows === 0) return next({
             status: 404,
             message: 'yo bro, da racord u wana dalete as not yar'
@@ -21,41 +21,65 @@ export async function deletePost(req: Request<{ id: string }>, res: Response, ne
     }
 }
 
-export async function createPost(req: Request, res: Response, next: NextFunction) {
-
+export async function createVacation(req: Request, res: Response, next: NextFunction) {
     try {
-        const newVacation = await Vacation.create({ 
-            ...req.body, 
-            userId: req.userId, 
-            imageUrl: req.imageUrl 
-        })
-        await newVacation.reload(vacationIncludes)
-        res.json(newVacation)
+        // Allow uploads AND URL
+        const image = req.imageUrl ?? req.body.image;
 
-        /////////////////////////////// here i want to send the io server a message
-        // socket.emit(SocketMessages.newVacation, {
-        //     from: req.get('x-client-id') || 'stam',
-        //     post: newVacation
-        // })
+        if (!image) {
+            return res.status(400).json({ message: "Image is required" });
+        }
 
-    } catch (e) {
-        next(e)
+        const vacation = await Vacation.create({
+            ...req.body,
+            userId: req.userId,
+            image // <-- write into the correct DB column
+        });
+
+        await vacation.reload(vacationIncludes);
+
+        res.status(201).json(vacation);
+
+    } catch (err) {
+        next(err);
     }
 }
 
-export async function updatePost(req: Request<{ id: string }>, res: Response, next: NextFunction) {
-    try {
-        const vacation = await Vacation.findByPk(req.params.id, vacationIncludes);
-        const { destination, description, startDate, endDate, price, image  } = req.body
-        vacation.destination = destination
-        vacation.description = description
-        vacation.startDate = startDate
-        vacation.endDate = endDate
-        vacation.price = price
-        vacation.image = image
-        await vacation.save()
-        res.json(vacation)
-    } catch (e) {
-        next(e)
+
+
+export async function updateVacation(req: Request<{ vacationId: string }>, res: Response, next: NextFunction) {
+    
+  try {
+    const vacation = await Vacation.findByPk(req.params.vacationId, vacationIncludes);
+
+    if (!vacation) {
+      return res.status(404).json({ message: "Vacation not found" });
     }
+    console.log("REQ BODY:", req.body);
+    console.log("startDate type:", typeof req.body.startDate, req.body.startDate);
+    console.log("endDate type:", typeof req.body.endDate, req.body.endDate);
+
+    const { destination, description, startDate, endDate, price, image } = req.body;
+
+
+    vacation.destination = destination ?? vacation.destination;
+    vacation.description = description ?? vacation.description;
+    vacation.startDate = startDate ? new Date(startDate) : vacation.startDate;
+    vacation.endDate   = endDate   ? new Date(endDate)   : vacation.endDate;
+    vacation.price = price ?? vacation.price;
+
+    // Handles fileUploader AND image URL
+    vacation.image = req.imageUrl ?? image ?? vacation.image;
+
+
+
+    await vacation.save();
+
+    const updated = await Vacation.findByPk(req.params.vacationId, vacationIncludes);
+
+    res.json(updated);
+
+  } catch (e) {
+    next(e);
+  }
 }
