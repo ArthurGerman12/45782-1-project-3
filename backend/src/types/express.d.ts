@@ -7,6 +7,6 @@ declare module "express-serve-static-core" {
       role: string;
     };
     userId?: string;
-    imageUrl?: string;
+    image?: string;
   }
 }

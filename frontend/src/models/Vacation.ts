@@ -1,8 +1,10 @@
-import type User from "./User"
-import type VacationDraft from "./VacationDraft"
-
-export default interface Vacation extends VacationDraft {
-    vacationId: string
-    userId: string
-    user: User
+export default interface Vacation {
+    vacationId: string;
+    destination: string;
+    description: string;
+    price: number;
+    startDate: string;
+    endDate: string;
+    image: string; // <-- MUST stay a string
+    likesCount: number;
 }

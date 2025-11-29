@@ -17,7 +17,7 @@
         "port": 3004
     },
     "s3": {
-        "bucket": "arthur.images.vacation.com",
+        "bucket": "vacation-images",
         "isLocalStack": true,
         "connection": {
             "endpoint": "http://localhost:4566",

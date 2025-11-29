@@ -5,11 +5,11 @@ import { jwtDecode } from "jwt-decode";
 export default function useUserName() {
     const authContext = useContext(AuthContext);
 
-    const name = useMemo(() => {
-        const { name } = jwtDecode<{ name: string }>(authContext!.jwt);
-        return name;
+    const firstName = useMemo(() => {
+        const { firstName } = jwtDecode<{ firstName: string }>(authContext!.jwt);
+        return firstName;
     }, [authContext]);
 
-    return name;
+    return firstName;
 
 }

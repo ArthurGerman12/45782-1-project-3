@@ -1,0 +1,120 @@
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import type VacationModel from '../../../models/Vacation';
+import './vacation.css';
+import { useAppDispatcher, useAppSelector } from '../../../redux/hooks';
+import { follow, unfollow } from '../../../redux/following-slice';
+import useService from '../../hooks/use-service';
+import FollowService from '../../../services/auth-aware/FollowingService';
+import useUserRole from '../../hooks/use-user-role';
+
+interface VacationProps {
+    vacation: VacationModel;
+    isNew?: boolean;
+}
+
+export default function Vacation(props: VacationProps) {
+    const { vacation } = props;
+    const {
+        vacationId,
+        description,
+        destination,
+        startDate,
+        endDate,
+        price,
+        image,
+        likesCount
+    } = vacation;
+
+    // Get role from context
+    const  role  = useUserRole();
+    const isEditAllowed = role === "admin";
+
+    const navigate = useNavigate();
+    const dispatch = useAppDispatcher();
+    const followService = useService(FollowService);
+    const following = useAppSelector(state => state.followingSlice.following);
+
+    const isFollowed = following.includes(vacationId);
+    const [likes, setLikes] = useState(isEditAllowed ? 0 : likesCount);
+
+    async function toggleFollow() {
+        if (isEditAllowed) return; // admins can't follow/unfollow
+
+        const delta = isFollowed ? -1 : 1;
+        setLikes(prev => Math.max(0, prev + delta));
+
+        try {
+            if (isFollowed) {
+                await followService.unfollow(vacationId);
+                dispatch(unfollow(vacationId));
+            } else {
+                await followService.follow(vacationId);
+                dispatch(follow(vacationId));
+            }
+        } catch (e: any) {
+            setLikes(prev => Math.max(0, prev - delta));
+            if (e.response?.status === 422 && e.response.data.message === "follow already exists") {
+                dispatch(follow(vacationId)); 
+            }
+            console.log(e);
+        }
+    }
+
+    function editMe() {
+        navigate(`/follows/update-vacation/${vacationId}`);
+    }
+
+    return (
+        <div className="vacation-card">
+            <div className="vacation-media">
+                {image ? (
+                    <img src={image} alt={destination} loading="lazy" />
+                ) : (
+                    <div className="vacation-media__placeholder">
+                        <span>No image available</span>
+                    </div>
+                )}
+            </div>
+
+            <div className="vacation-content">
+                <div className="vacation-header">
+                    <div>
+                        <p className="vacation-destination">{destination}</p>
+                        <p className="vacation-dates">
+                            {new Date(startDate).toLocaleDateString()} –{' '}
+                            {new Date(endDate).toLocaleDateString()}
+                        </p>
+                    </div>
+                    <div className="vacation-price">{price}$</div>
+                </div>
+
+                <p className="vacation-description">{description}</p>
+
+                <div className="vacation-actions">
+
+                    {/* USER MODE */}
+                    {!isEditAllowed && (
+                        <button
+                            className={`chip like-button ${isFollowed ? 'liked' : ''}`}
+                            onClick={toggleFollow}
+                            aria-label={isFollowed ? "Unlike vacation" : "Like vacation"}
+                        >
+                            <span className="heart" aria-hidden="true">&#10084;</span>
+                            <span className="likes-count">{likes}</span>
+                        </button>
+                    )}
+
+                    {/* ADMIN MODE */}
+                    {isEditAllowed && (
+                        <div className="edit-actions">
+                            <button className="ghost">Delete</button>
+                            <button className="ghost" onClick={editMe}>Edit</button>
+                        </div>
+                    )}
+
+                </div>
+            </div>
+        </div>
+    );
+}

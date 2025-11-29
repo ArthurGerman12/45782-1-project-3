@@ -13,6 +13,7 @@ import authRouter from './routers/auth'
 import {hashAndSaltPassword} from './controllers/auth/controller'
 
 
+
 const app = express()
 
 
@@ -27,7 +28,7 @@ app.use(cors())
 
 // post decipher middlewares
 app.use(json())
-app.use(fileUpload())
+app.use(fileUpload());
 
 
 // load routers

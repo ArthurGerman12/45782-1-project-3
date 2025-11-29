@@ -9,7 +9,7 @@ import { extname } from "path";
 declare global {
   namespace Express {
     interface Request {
-      imageUrl?: string;
+      image?: string;
     }
   }
 }
@@ -35,8 +35,7 @@ export default async function fileUploader(req: Request, res: Response, next: Ne
 
     await upload.done();
 
-    // LOCALSTACK URL FORMAT
-    req.imageUrl = `http://localhost:4566/${bucket}/${key}`;
+    req.image = `http://localhost:4566/${bucket}/${key}`;
 
     return next();
   } catch (err) {

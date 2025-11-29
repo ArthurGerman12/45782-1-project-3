@@ -1,64 +1,88 @@
-import { useNavigate } from 'react-router-dom';
-import type VacationModel from '../../../models/Vacation';
-import './feed.css';
-// import { useAppDispatcher } from '../../../redux/hooks';
-// import { deletePost } from '../../../redux/profile-slice';
-// import useService from '../../../hooks/use-service';
+import { useEffect, useState } from 'react';
+import './Feed.css';
+import Spinner from '../../common/spinner/Spinner';
+import useTitle from '../../hooks/use-title';
+import { useAppDispatcher, useAppSelector } from '../../../redux/hooks';
+import { init } from '../../../redux/feed-slice';
+import SpinnerButton from '../../common/spinner-button/SpinnerButton';
+import useService from '../../hooks/use-service';
+import FeedService from '../../../services/auth-aware/FeedService';
+import Vacation from '../vacation/vacation';
+import FollowingService from '../../../services/auth-aware/FollowingService';
+import { init as feedInit } from "../../../redux/feed-slice";
+import { init as followingInit } from "../../../redux/following-slice";
 
-interface VacationProps {
-    vacation: VacationModel,
-    isEditAllowed: boolean
-    isNew?: boolean
-}
 
-export default function Vacation(props: VacationProps) {
+export default function Feed() {
 
-    const {
-        description,
-        destination,
-        startAt,
-        endAt,
-        price,
-        vacationId,
-        imageUrl
-    } = props.vacation;
+    useTitle('Feed');
 
-    const { isEditAllowed } = props;
+    const feedService = useService(FeedService);
 
-    const navigate = useNavigate();
+    const feed = useAppSelector(state => state.feedSlice.vacations);
+    const isNewContentAvailable = useAppSelector(state => state.feedSlice.isNewContentAvailable);
+    const dispatch = useAppDispatcher();
+    const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
-    // const dispatch = useAppDispatcher();
+    const followingService = useService(FollowingService);
 
-    async function removeMe() {
-        ({})
-        // try {
-        //     // if (confirm('are you sure?')) {
-        //     //     await profileService.remove(id);
-        //     //     dispatch(deletePost(id));
-        //     }
-        // } catch (e) {
-        //     // alert(e);
-        // }
+
+
+useEffect(() => {
+    (async () => {
+        try {
+            // load feed as usual
+            if (feed.length === 0) {
+                const feedFromServer = await feedService.getFeed();
+                dispatch(feedInit(feedFromServer));
+            }
+
+            const followedVacations = await followingService.getFollowing();
+
+            const followedIds = followedVacations.map(v => v.vacationId);
+
+            dispatch(followingInit(followedIds));
+            
+        } catch (e) {
+            console.log(e);
+        }
+    })();
+}, [dispatch, feed.length]);
+
+
+
+    async function refresh() {
+        try {
+            setIsRefreshing(true);
+            const feedFromServer = await feedService.getFeed();
+            dispatch(init(feedFromServer));
+        } catch (e) {
+            alert(e);
+        } finally {
+            setIsRefreshing(false);
+        }
     }
-
-    function editMe() {
-        navigate(`/follows/update-vacation/${vacationId}`);
-    }
-
-    // const className = `Post ${isNew ? 'new-post' : ''}`;
-    const className = `blblb`;
 
     return (
-        <div className={className}>
-            <div><h3>{destination}</h3></div>
-            <div>{(new Date(startAt)).toLocaleDateString()} - {(new Date(endAt)).toLocaleDateString()}</div>
-            <div>{description}</div>
-            <div>{price}</div>
-            {imageUrl && <div><img src={`${import.meta.env.VITE_S3_URL}${imageUrl}`} /></div>}
-            {/* conditional rendering (render something depending on a boolean value):  */}
-            {isEditAllowed && <div>
-                <button onClick={removeMe}>Delete</button><button onClick={editMe}>Edit</button>
-            </div>}
+        <div className='Feed'>
+            {feed.length > 0 && <>
+
+                {isNewContentAvailable && <div className='info-box'>
+                    you have new content available, please refresh <SpinnerButton
+                        buttonText='refresh'
+                        loadingText='refreshing'
+                        onClick={refresh}
+                        isSubmitting={isRefreshing}
+                    />
+                </div>}
+
+                {feed.map(vacation => <Vacation
+                    key={vacation.vacationId}
+                    vacation={vacation}
+                />)}
+            </>}
+
+            {feed.length === 0 && <Spinner />}
         </div>
     );
 }

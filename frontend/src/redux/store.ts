@@ -1,9 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
-import feedSlice from "./feed-slice";
+import feedReducer from "./feed-slice";
+import followingReducer from "./following-slice";
+import adminReducer  from "./admin-slice";
 
 const store = configureStore({
     reducer: {
-        feedSlice
+        feedSlice: feedReducer,
+        followingSlice: followingReducer,
+        adminSlice: adminReducer
     }
 });
 

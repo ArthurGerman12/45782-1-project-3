@@ -24,7 +24,7 @@ export async function deleteVacation(req: Request<{ vacationId: string }>, res: 
 export async function createVacation(req: Request, res: Response, next: NextFunction) {
     try {
         // Allow uploads AND URL
-        const image = req.imageUrl ?? req.body.image;
+        const image = req.image ?? req.body.image;
 
         if (!image) {
             return res.status(400).json({ message: "Image is required" });
@@ -42,6 +42,15 @@ export async function createVacation(req: Request, res: Response, next: NextFunc
 
     } catch (err) {
         next(err);
+    }
+}
+
+export async function getVacation(req: Request<{ vacationId: string }>, res: Response, next: NextFunction) {
+    try {
+        const vacation = await Vacation.findByPk(req.params.vacationId, vacationIncludes)
+        res.json(vacation)
+    } catch (e) {
+        next(e)
     }
 }
 
@@ -69,7 +78,7 @@ export async function updateVacation(req: Request<{ vacationId: string }>, res: 
     vacation.price = price ?? vacation.price;
 
     // Handles fileUploader AND image URL
-    vacation.image = req.imageUrl ?? image ?? vacation.image;
+    vacation.image = req.image ?? image ?? vacation.image;
 
 
 

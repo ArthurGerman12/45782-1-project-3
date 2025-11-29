@@ -5,8 +5,14 @@ import './Login.css';
 import type LoginModel from '../../../models/Login';
 import authService from '../../../services/auth';
 import AuthContext from '../auth/AuthContext';
+import UserContext from '../../../contexts/UserContext';
+import { jwtDecode } from 'jwt-decode';
+import type { UserJwtPayload } from '../../../models/UserJwtPayload';
+
 
 export default function Login() {
+    const { setUser } = useContext(UserContext)!;
+
 
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -19,6 +25,8 @@ export default function Login() {
             setIsSubmitting(true);
             const { jwt } = await authService.login(login);
             authContext?.newJwt(jwt);
+            const decoded = jwtDecode<UserJwtPayload>(jwt)
+            setUser(decoded)
         } catch (e) {
             alert(e);
         } finally {

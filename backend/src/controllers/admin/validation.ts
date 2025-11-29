@@ -6,7 +6,6 @@ export const newVacationValidator = Joi.object({
     price: Joi.number().min(0).max(10000).required(),
     startDate: Joi.date().required(),
     endDate: Joi.date().required(),
-    image: Joi.string().allow("").optional()
 })
 
 export const newVacationImageValidator = Joi.object({
@@ -14,6 +13,7 @@ export const newVacationImageValidator = Joi.object({
         mimetype: Joi.string().valid('image/jpeg', 'image/png')
     }).unknown(true).optional()
 })
+
 
 export const updateVacationValidator = Joi.object({
     destination: Joi.string().min(10).max(40).uppercase().optional(),
