@@ -1,134 +1,163 @@
-import { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
-import { useNavigate, useParams } from "react-router-dom"
-import type VacationDraft from "../../../models/VacationDraft"
-import adminService from "../../../services/auth-aware/AdminService"
-import Spinner from "../../common/spinner/Spinner"
-import SpinnerButton from "../../common/spinner-button/SpinnerButton"
-import useTitle from "../../hooks/use-title"
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import type VacationDraft from "../../../models/VacationDraft";
+import Spinner from "../../common/spinner/Spinner";
+import SpinnerButton from "../../common/spinner-button/SpinnerButton";
+import useTitle from "../../hooks/use-title";
+import AdminService from "../../../services/auth-aware/AdminService";
+import useService from "../../hooks/use-service";
+import { useAppDispatcher } from "../../../redux/hooks";
+import { updateVacation } from "../../../redux/admin-slice";
+import { bump } from "../../../redux/feedVersion-slice";
+import './edit-vacation.css';
 
 export default function EditVacation() {
-    useTitle("Edit Vacation")
-    const { vacationId } = useParams<'vacationId'>()
+    useTitle("Edit Vacation");
 
-    const { register, handleSubmit, reset, formState } = useForm<VacationDraft>()
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [isReady, setIsReady] = useState(false)
+    const { vacationId } = useParams<'vacationId'>();
+    const adminService = useService(AdminService);
 
-    const navigate = useNavigate()
+    const { register, handleSubmit, reset, formState } = useForm<VacationDraft>();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isReady, setIsReady] = useState(false);
+
+    const [preview, setPreview] = useState<string | null>(null);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         (async () => {
-            const vacation = await adminService.getVacation(vacationId!)
-            const { destination, description, price, startDate, endDate } = vacation
+            try {
+                const vacation = await adminService.getVacation(vacationId!);
 
-            // reset accepts only primitive fields, not File
-            reset({ destination, description, price, startDate, endDate })
-            setIsReady(true)
-        })()
-    }, [vacationId, reset])
+                const start = vacation.startDate.split("T")[0];
+                const end = vacation.endDate.split("T")[0];
+
+                reset({
+                    destination: vacation.destination,
+                    description: vacation.description,
+                    price: vacation.price,
+                    startDate: start,
+                    endDate: end
+                });
+                setPreview(vacation.image);
+                setIsReady(true);
+            } catch (err) {
+                alert("Failed to load vacation.");
+                console.error(err);
+            }
+        })();
+    }, [vacationId]);
+
+    function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) {
+            setPreview(null);
+            return;
+        }
+        setPreview(URL.createObjectURL(file));
+    }
+
+    const dispatch = useAppDispatcher()
 
     async function submit(draft: VacationDraft) {
         try {
-            setIsSubmitting(true)
-
-            const form = new FormData()
-            form.append("destination", draft.destination)
-            form.append("description", draft.description)
-            form.append("price", draft.price.toString())
-            form.append("startDate", draft.startDate)
-            form.append("endDate", draft.endDate)
-
-            // File (optional)
-            if (draft.image && draft.image.length > 0) {
-                form.append("image", draft.image[0])
-            }
-
-            await adminService.editVacation(vacationId!, draft);
-            navigate('/feed')
-
+            setIsSubmitting(true);
+            const updated = await adminService.editVacation(vacationId!, draft);
+            dispatch(updateVacation(updated)); 
+            dispatch(bump())
+            navigate("/feed");
         } catch (e) {
-            alert(e)
+            console.error(e);
+            alert("Failed to update vacation.");
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
     }
 
     return (
-        <div className='EditVacation'>
+        <div className="EditVacation">
 
             {!isReady && <Spinner />}
 
             {isReady && (
-                <form onSubmit={handleSubmit(submit)} encType="multipart/form-data">
+                <form className="edit-form" onSubmit={handleSubmit(submit)} encType="multipart/form-data">
+
+                    {/* IMAGE PREVIEW */}
+                    {preview && (
+                        <div className="image-preview">
+                            <img src={preview} alt="Preview" className="preview-img" />
+                        </div>
+                    )}
 
                     {/* DESTINATION */}
                     <input
                         placeholder="Destination"
-                        {...register('destination', {
+                        {...register("destination", {
                             required: "Destination is required",
-                            minLength: { value: 10, message: 'At least 10 characters' }
+                            minLength: { value: 10, message: "At least 10 characters" }
                         })}
                     />
-                    <div className='formError'>{formState.errors.destination?.message}</div>
+                    <div className="formError">{formState.errors.destination?.message}</div>
 
                     {/* DESCRIPTION */}
                     <textarea
-                        placeholder='Description'
-                        {...register('description', {
+                        placeholder="Description"
+                        {...register("description", {
                             required: "Description is required",
-                            minLength: { value: 20, message: 'At least 20 characters' }
+                            minLength: { value: 20, message: "At least 20 characters" }
                         })}
-                    ></textarea>
-                    <div className='formError'>{formState.errors.description?.message}</div>
+                    />
+                    <div className="formError">{formState.errors.description?.message}</div>
 
                     {/* PRICE */}
                     <input
                         type="number"
-                        placeholder='Price'
-                        {...register('price', {
+                        placeholder="Price"
+                        {...register("price", {
                             required: "Price is required",
-                            min: { value: 0, message: 'Cannot be negative' },
-                            max: { value: 10000, message: 'Cannot exceed 10,000' }
+                            valueAsNumber: true,
+                            min: { value: 0, message: "Cannot be negative" },
+                            max: { value: 10000, message: "Cannot exceed 10,000" }
                         })}
                     />
-                    <div className='formError'>{formState.errors.price?.message}</div>
+                    <div className="formError">{formState.errors.price?.message}</div>
 
                     {/* START DATE */}
                     <input
                         type="date"
-                        placeholder="Start Date"
-                        {...register('startDate', {
-                            required: "Start date is required"
-                        })}
+                        {...register("startDate", { required: "Start date is required" })}
                     />
-                    <div className='formError'>{formState.errors.startDate?.message}</div>
+                    <div className="formError">{formState.errors.startDate?.message}</div>
 
                     {/* END DATE */}
                     <input
                         type="date"
-                        placeholder="End Date"
-                        {...register('endDate', {
-                            required: "End date is required"
-                        })}
+                        {...register("endDate", { required: "End date is required" })}
                     />
-                    <div className='formError'>{formState.errors.endDate?.message}</div>
+                    <div className="formError">{formState.errors.endDate?.message}</div>
 
                     {/* IMAGE UPLOAD */}
                     <input
+                        placeholder="Accepts only jpeg and png"
                         type="file"
                         accept="image/*"
-                        {...register('image')}
+                        {...register("image")}
+                        onChange={(e) => {
+                            handleImageChange(e);
+                            register("image").onChange(e); // keep RHF in sync
+                        }}
                     />
 
                     <SpinnerButton
-                        buttonText='Update Vacation'
-                        loadingText='Updating...'
+                        buttonText="Update Vacation"
+                        loadingText="Updating..."
                         isSubmitting={isSubmitting}
                     />
                 </form>
             )}
 
         </div>
-    )
+    );
 }

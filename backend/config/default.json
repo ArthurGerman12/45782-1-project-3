@@ -12,10 +12,6 @@
         "password": "",
         "database": "vacations"
     },
-    "io": {
-        "host": "localhost",
-        "port": 3004
-    },
     "s3": {
         "bucket": "vacation-images",
         "isLocalStack": true,

@@ -4,7 +4,7 @@ import paramValidation from "../middlewares/param-validation";
 import { followValidator, unfollowValidator } from "../controllers/follow/validaton";
 import { forbidAdmins } from "../middlewares/forbid-admins";
 import fileUploader from "../middlewares/file-uploader";
-import { createVacation, deleteVacation, updateVacation, getVacation } from "../controllers/admin/controller";
+import { createVacation, deleteVacation, updateVacation, getVacation, getReports } from "../controllers/admin/controller";
 import fileValidation from "../middlewares/file-validation";
 import { newVacationImageValidator, newVacationValidator, updateVacationValidator } from "../controllers/admin/validation";
 import validation from "../middlewares/validation";
@@ -20,8 +20,10 @@ router.post("/unfollow/:id", forbidAdmins, paramValidation(unfollowValidator), u
 //admin routing 
 router.get('/vacation/:vacationId',requireRole("admin"), getVacation)
 router.post('/create-vacation',requireRole("admin"),fileUploader, fileValidation(newVacationImageValidator), validation(newVacationValidator), createVacation);
-router.post('/delete-vacation/:vacationId',requireRole("admin"), deleteVacation)
-router.patch('/update-vacation/:vacationId', requireRole("admin"), fileUploader, fileValidation(newVacationImageValidator), validation(updateVacationValidator), updateVacation)
+router.delete('/delete-vacation/:vacationId',requireRole("admin"), deleteVacation)
+router.patch("/update-vacation/:vacationId",requireRole("admin"), fileValidation(newVacationImageValidator), validation(updateVacationValidator), fileUploader, updateVacation);
+router.get("/reports/vacations", requireRole("admin"), getReports)
+
 
 
 export default router;

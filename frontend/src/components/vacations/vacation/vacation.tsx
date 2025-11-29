@@ -6,7 +6,11 @@ import { useAppDispatcher, useAppSelector } from '../../../redux/hooks';
 import { follow, unfollow } from '../../../redux/following-slice';
 import useService from '../../hooks/use-service';
 import FollowService from '../../../services/auth-aware/FollowingService';
+import AdminService from '../../../services/auth-aware/AdminService';
+import { deleteVacation } from '../../../redux/admin-slice';
+import { bump } from '../../../redux/feedVersion-slice';
 import useUserRole from '../../hooks/use-user-role';
+import Swal from "sweetalert2";
 
 interface VacationProps {
     vacation: VacationModel;
@@ -26,20 +30,20 @@ export default function Vacation(props: VacationProps) {
         likesCount
     } = vacation;
 
-    // Get role from context
-    const  role  = useUserRole();
+    const role = useUserRole();
     const isEditAllowed = role === "admin";
 
     const navigate = useNavigate();
     const dispatch = useAppDispatcher();
     const followService = useService(FollowService);
-    const following = useAppSelector(state => state.followingSlice.following);
+    const adminService = useService(AdminService);
 
+    const following = useAppSelector(state => state.followingSlice.following);
     const isFollowed = following.includes(vacationId);
     const [likes, setLikes] = useState(isEditAllowed ? 0 : likesCount);
 
     async function toggleFollow() {
-        if (isEditAllowed) return; // admins can't follow/unfollow
+        if (isEditAllowed) return;
 
         const delta = isFollowed ? -1 : 1;
         setLikes(prev => Math.max(0, prev + delta));
@@ -55,21 +59,43 @@ export default function Vacation(props: VacationProps) {
         } catch (e: any) {
             setLikes(prev => Math.max(0, prev - delta));
             if (e.response?.status === 422 && e.response.data.message === "follow already exists") {
-                dispatch(follow(vacationId)); 
+                dispatch(follow(vacationId));
             }
             console.log(e);
         }
     }
 
     function editMe() {
-        navigate(`/follows/update-vacation/${vacationId}`);
+        navigate(`/edit-vacation/${vacationId}`);
     }
+
+
+
+    async function deleteMe() {
+        const res = await Swal.fire({
+            title: "Delete Vacation?",
+            text: `Are you sure you want to delete “${destination}”?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#aaa",
+            confirmButtonText: "Delete",
+        });
+
+        if (res.isConfirmed) {
+            await adminService.remove(vacationId);
+            dispatch(deleteVacation(vacationId));
+            dispatch(bump());
+            Swal.fire("Deleted!", "The vacation was removed.", "success");
+        }
+    }
+
 
     return (
         <div className="vacation-card">
             <div className="vacation-media">
                 {image ? (
-                    <img src={image} alt={destination} loading="lazy" />
+                    <img src={`${image}?v=${Date.now()}`} alt={destination} loading="lazy" />
                 ) : (
                     <div className="vacation-media__placeholder">
                         <span>No image available</span>
@@ -93,26 +119,22 @@ export default function Vacation(props: VacationProps) {
 
                 <div className="vacation-actions">
 
-                    {/* USER MODE */}
                     {!isEditAllowed && (
                         <button
                             className={`chip like-button ${isFollowed ? 'liked' : ''}`}
                             onClick={toggleFollow}
-                            aria-label={isFollowed ? "Unlike vacation" : "Like vacation"}
                         >
                             <span className="heart" aria-hidden="true">&#10084;</span>
                             <span className="likes-count">{likes}</span>
                         </button>
                     )}
 
-                    {/* ADMIN MODE */}
                     {isEditAllowed && (
                         <div className="edit-actions">
-                            <button className="ghost">Delete</button>
+                            <button className="ghost delete-button" onClick={deleteMe}>Delete</button>
                             <button className="ghost" onClick={editMe}>Edit</button>
                         </div>
                     )}
-
                 </div>
             </div>
         </div>

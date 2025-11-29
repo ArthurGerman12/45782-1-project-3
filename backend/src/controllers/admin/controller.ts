@@ -5,6 +5,7 @@ import { newVacationValidator } from "./validation";
 import socket from "../../io/io";
 import SocketMessages from "socket-enums-shaharsolllllll";
 import vacationIncludes from "../common/vacation-includes";
+import sequelize from "../../db/sequelize";
 
 
 export async function deleteVacation(req: Request<{ vacationId: string }>, res: Response, next: NextFunction) {
@@ -54,6 +55,31 @@ export async function getVacation(req: Request<{ vacationId: string }>, res: Res
     }
 }
 
+export async function getReports(req, res, next) {
+    try {
+        const report = await Vacation.findAll({
+            attributes: [
+                "destination",
+                [sequelize.fn("COUNT", sequelize.col("users.id")), "followers"]
+            ],
+            include: [
+                {
+                    model: User,
+                    attributes: [],
+                    through: { attributes: [] } // hide join table
+                }
+            ],
+            group: ["Vacation.vacation_id"],
+            order: [["destination", "ASC"]]
+        });
+
+        res.json(report);
+    } catch (err) {
+        console.error("REPORT ERROR:", err);
+        next(err);
+    }
+
+};
 
 
 export async function updateVacation(req: Request<{ vacationId: string }>, res: Response, next: NextFunction) {

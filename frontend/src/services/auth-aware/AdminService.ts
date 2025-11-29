@@ -1,15 +1,25 @@
-import axios from "axios"
-import type Vacation from "../../models/Vacation"
-import type VacationDraft from "../../models/VacationDraft"
+import AuthAware from "../auth-aware/AuthAware";
+import type Vacation from "../../models/Vacation";
+import type VacationDraft from "../../models/VacationDraft";
 
-class AdminService {
-    
-    async remove(vacationId: string): Promise<boolean> {
-        const response = await axios.delete(
-            `${import.meta.env.VITE_REST_SERVER_URL}/follows/delete-vacation/${vacationId}`
-        );
-        return response.data;
+class AdminService extends AuthAware {
+
+    constructor(jwt: string, clientId: string) {
+        super(jwt, clientId);
     }
+
+    async remove(vacationId: string): Promise<boolean> {
+        const { data } = await this.axiosInstance.delete(
+            `/follows/delete-vacation/${vacationId}`
+        );
+        return data;
+    }
+
+    async getReport() {
+    const { data } = await this.axiosInstance.get("/follows/reports/vacations");
+    return data;
+    }
+
 
     async newVacation(draft: VacationDraft): Promise<Vacation> {
         const form = new FormData();
@@ -18,26 +28,26 @@ class AdminService {
         form.append("price", draft.price.toString());
         form.append("startDate", draft.startDate);
         form.append("endDate", draft.endDate);
-
+        
         if (draft.image && draft.image.length > 0) {
             form.append("image", draft.image[0]);
         }
 
-        const response = await axios.post<Vacation>(
-            `${import.meta.env.VITE_REST_SERVER_URL}/follows/create-vacation`,
-            form,
-            { headers: { "Content-Type": "multipart/form-data" } }
+        const { data } = await this.axiosInstance.post<Vacation>(
+            "/follows/create-vacation",
+            form
         );
 
-        return response.data;
+        return data;
     }
 
     async getVacation(vacationId: string): Promise<Vacation> {
-        const response = await axios.get<Vacation>(
-            `${import.meta.env.VITE_REST_SERVER_URL}/follows/update-vacation/${vacationId}`
-        );
-        return response.data;
-    }
+    const { data } = await this.axiosInstance.get<Vacation>(
+        `/follows/vacation/${vacationId}`
+    );
+    return data;
+}
+
 
     async editVacation(vacationId: string, draft: VacationDraft): Promise<Vacation> {
         const form = new FormData();
@@ -51,15 +61,13 @@ class AdminService {
             form.append("image", draft.image[0]);
         }
 
-        const response = await axios.patch<Vacation>(
-            `${import.meta.env.VITE_REST_SERVER_URL}/follows/update-vacation/${vacationId}`,
-            form,
-            { headers: { "Content-Type": "multipart/form-data" } }
+        const { data } = await this.axiosInstance.patch<Vacation>(
+            `/follows/update-vacation/${vacationId}`,
+            form
         );
 
-        return response.data;
+        return data;
     }
 }
 
-const adminService = new AdminService();
-export default adminService;
+export default AdminService;
