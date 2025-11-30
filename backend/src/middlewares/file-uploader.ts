@@ -36,7 +36,9 @@ export default async function fileUploader(req: Request, res: Response, next: Ne
 
     await upload.done();
 
-    req.image = `http://localhost:4566/${bucket}/${key}`;
+    const baseUrl = config.get<string>("s3.baseUrl");
+
+    req.image = `${baseUrl}/${bucket}/${key}`;
 
     return next();
   } catch (err) {
