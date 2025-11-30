@@ -12,11 +12,13 @@ import followRouter from './routers/follow'
 import authRouter from './routers/auth'
 import {hashAndSaltPassword} from './controllers/auth/controller'
 import { createAppBucketIfNotExists } from "./aws/aws";
+import { seedInitialImages } from "./aws/s3-seed";
 
 
 
 
 const app = express()
+
 
 
 const port = config.get<number>('app.port')
@@ -50,7 +52,8 @@ app.use(responder);
 
 (async () => {
     await sequelize.sync({ alter: true });
-    await createAppBucketIfNotExists();  // FIX
+    await createAppBucketIfNotExists();
+    await seedInitialImages();
     app.listen(port, () => console.log(`${appName} started on port ${port}`))
 })();
 

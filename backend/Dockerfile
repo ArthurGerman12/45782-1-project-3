@@ -10,8 +10,13 @@ COPY ./package*.json ./
 # install all dependencies
 RUN npm install
 
-# copy everthing except whatever is in .dockerignore
+# copy everything except .dockerignore exclusions
 COPY ./ ./
+
+# explicitly copy config folder (because .dockerignore blocks it)
+COPY ./config ./config
+
+COPY ./seed-images ./seed-images
 
 # build typescript into javascript
 RUN npm run build
@@ -21,7 +26,3 @@ RUN rm -rf ./src
 
 # what runs when the image is loaded by docker into a container
 CMD ["npm", "start"]
-
-
-
-# docker run --name weezer-backend -d -e NODE_ENV=docker  -p 3010:3000 shaharsol/weezer-backend:3.0.0

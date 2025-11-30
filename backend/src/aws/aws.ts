@@ -9,17 +9,24 @@ if (!config.get<boolean>('s3.isLocalStack')) delete s3Connection.endpoint;
 const s3Client = new S3Client(s3Connection)
 
 export async function createAppBucketIfNotExists() {
-    try {
-        const result = await s3Client.send(
-            new CreateBucketCommand({
+    console.log("S3 CLIENT CONFIG:", s3Connection);
+
+    for (let i = 0; i < 5; i++) {
+        try {
+            await s3Client.send(new CreateBucketCommand({
                 Bucket: config.get<string>('s3.bucket')
-            })
-        )
-        console.log(result)
-    } catch (e) {
-        console.log('bucket creation failed. silenting exception, bucket probably already exists', e)
+
+            }))
+            console.log("Bucket created.")
+            return
+        } catch (e) {
+            console.log("Bucket not ready yet, retrying...")
+            await new Promise(r => setTimeout(r, 1000))
+        }
     }
 }
+
+
 
 export async function testUpload() {
     try {

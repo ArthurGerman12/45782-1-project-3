@@ -3,6 +3,8 @@
         "host": "database"
     },
     "s3": {
+        "bucket": "vacation-images",
+        "isLocalStack": true,
         "connection": {
         "endpoint": "http://localstack:4566",
         "region": "us-east-1",
@@ -11,7 +13,8 @@
             "secretAccessKey": "test"
         },
         "forcePathStyle": true
+            }
+        }
     }
-  }
-}
+
 
