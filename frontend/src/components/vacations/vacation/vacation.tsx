@@ -10,20 +10,15 @@ import AdminService from '../../../services/auth-aware/AdminService';
 import { deleteVacation } from '../../../redux/admin-slice';
 import { bump } from '../../../redux/feedVersion-slice';
 import useUserRole from '../../hooks/use-user-role';
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 interface VacationProps {
     vacation: VacationModel;
     isNew?: boolean;
 }
 
-function fixImageUrl(url: string) {
-    if (!url) return url;
-    if (window.location.hostname === 'localhost') return url;
-    return url.replace('localhost', 'localstack');
-}
+export default function Vacation(props: VacationProps) {   
 
-export default function Vacation(props: VacationProps) {
     const { vacation } = props;
     const {
         vacationId,
@@ -37,7 +32,7 @@ export default function Vacation(props: VacationProps) {
     } = vacation;
 
     const role = useUserRole();
-    const isEditAllowed = role === 'admin';
+    const isEditAllowed = role === "admin";
 
     const navigate = useNavigate();
     const dispatch = useAppDispatcher();
@@ -64,7 +59,7 @@ export default function Vacation(props: VacationProps) {
             }
         } catch (e: any) {
             setLikes(prev => Math.max(0, prev - delta));
-            if (e.response?.status === 422 && e.response.data.message === 'follow already exists') {
+            if (e.response?.status === 422 && e.response.data.message === "follow already exists") {
                 dispatch(follow(vacationId));
             }
             console.log(e);
@@ -75,30 +70,33 @@ export default function Vacation(props: VacationProps) {
         navigate(`/edit-vacation/${vacationId}`);
     }
 
+
+
     async function deleteMe() {
         const res = await Swal.fire({
-            title: 'Delete Vacation?',
+            title: "Delete Vacation?",
             text: `Are you sure you want to delete “${destination}”?`,
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#aaa',
-            confirmButtonText: 'Delete'
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#aaa",
+            confirmButtonText: "Delete",
         });
 
         if (res.isConfirmed) {
             await adminService.remove(vacationId);
             dispatch(deleteVacation(vacationId));
             dispatch(bump());
-            Swal.fire('Deleted!', 'The vacation was removed.', 'success');
+            Swal.fire("Deleted!", "The vacation was removed.", "success");
         }
     }
+
 
     return (
         <div className="vacation-card">
             <div className="vacation-media">
                 {image ? (
-                    <img src={fixImageUrl(image)} alt={destination} loading="lazy" />
+                    <img src={`${image}`} alt={destination} loading="lazy" />
                 ) : (
                     <div className="vacation-media__placeholder">
                         <span>No image available</span>
@@ -121,26 +119,21 @@ export default function Vacation(props: VacationProps) {
                 <p className="vacation-description">{description}</p>
 
                 <div className="vacation-actions">
+
                     {!isEditAllowed && (
                         <button
                             className={`chip like-button ${isFollowed ? 'liked' : ''}`}
                             onClick={toggleFollow}
                         >
-                            <span className="heart" aria-hidden="true">
-                                &#10084;
-                            </span>
+                            <span className="heart" aria-hidden="true">&#10084;</span>
                             <span className="likes-count">{likes}</span>
                         </button>
                     )}
 
                     {isEditAllowed && (
                         <div className="edit-actions">
-                            <button className="ghost delete-button" onClick={deleteMe}>
-                                Delete
-                            </button>
-                            <button className="ghost" onClick={editMe}>
-                                Edit
-                            </button>
+                            <button className="ghost delete-button" onClick={deleteMe}>Delete</button>
+                            <button className="ghost" onClick={editMe}>Edit</button>
                         </div>
                     )}
                 </div>

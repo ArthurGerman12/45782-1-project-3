@@ -26,9 +26,12 @@ services:
     container_name: vacations-backend-compose
     environment:
       - NODE_ENV=compose
+      - PUBLIC_IMAGE_BASE_URL=http://localhost:3020
     ports:
       - "3020:3000"
     build: ./backend
+    volumes:
+      - ./backend/public/images:/app/public/images
     depends_on:
       database:
         condition: service_healthy
@@ -48,16 +51,5 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.compose
 
-# docker run --name localstack -d -p 4566:4566 -p 4510-4559:4510-4559 -v golan:/var/lib/localstack -e PERSISTENCE=1 localstack/localstack
-  localstack:
-    container_name: vacations-localstack-compose
-    ports:
-      - 4566:4566
-      - 4510-4559:4510-4559
-    image: localstack/localstack
-    volumes:
-      - s3localdata:/var/lib/localstack
-
 volumes:
-  s3localdata:
   vacationsdata:

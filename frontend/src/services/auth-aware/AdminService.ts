@@ -22,20 +22,9 @@ class AdminService extends AuthAware {
 
 
     async newVacation(draft: VacationDraft): Promise<Vacation> {
-        const form = new FormData();
-        form.append("destination", draft.destination);
-        form.append("description", draft.description);
-        form.append("price", draft.price.toString());
-        form.append("startDate", draft.startDate);
-        form.append("endDate", draft.endDate);
-        
-        if (draft.image && draft.image.length > 0) {
-            form.append("image", draft.image[0]);
-        }
-
         const { data } = await this.axiosInstance.post<Vacation>(
             "/follows/create-vacation",
-            form
+            draft
         );
 
         return data;
@@ -50,20 +39,9 @@ class AdminService extends AuthAware {
 
 
     async editVacation(vacationId: string, draft: VacationDraft): Promise<Vacation> {
-        const form = new FormData();
-        form.append("destination", draft.destination);
-        form.append("description", draft.description);
-        form.append("price", draft.price.toString());
-        form.append("startDate", draft.startDate);
-        form.append("endDate", draft.endDate);
-
-        if (draft.image && draft.image.length > 0) {
-            form.append("image", draft.image[0]);
-        }
-
         const { data } = await this.axiosInstance.patch<Vacation>(
             `/follows/update-vacation/${vacationId}`,
-            form
+            draft
         );
 
         return data;

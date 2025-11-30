@@ -23,6 +23,7 @@ export default function EditVacation() {
     const [isReady, setIsReady] = useState(false);
 
     const [preview, setPreview] = useState<string | null>(null);
+    const apiBase = import.meta.env.VITE_REST_SERVER_URL.replace(/\/$/, "");
 
     const navigate = useNavigate();
 
@@ -39,7 +40,8 @@ export default function EditVacation() {
                     description: vacation.description,
                     price: vacation.price,
                     startDate: start,
-                    endDate: end
+                    endDate: end,
+                    image: vacation.image
                 });
                 setPreview(vacation.image);
                 setIsReady(true);
@@ -50,13 +52,10 @@ export default function EditVacation() {
         })();
     }, [vacationId]);
 
-    function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const file = e.target.files?.[0];
-        if (!file) {
-            setPreview(null);
-            return;
-        }
-        setPreview(URL.createObjectURL(file));
+    function formatPreview(value: string) {
+        if (!value) return null;
+        if (value.startsWith("http")) return value;
+        return `${apiBase}/images/${value}`;
     }
 
     const dispatch = useAppDispatcher()
@@ -82,7 +81,7 @@ export default function EditVacation() {
             {!isReady && <Spinner />}
 
             {isReady && (
-                <form className="edit-form" onSubmit={handleSubmit(submit)} encType="multipart/form-data">
+                <form className="edit-form" onSubmit={handleSubmit(submit)}>
 
                     {/* IMAGE PREVIEW */}
                     {preview && (
@@ -138,17 +137,16 @@ export default function EditVacation() {
                     />
                     <div className="formError">{formState.errors.endDate?.message}</div>
 
-                    {/* IMAGE UPLOAD */}
+                    {/* IMAGE URL OR FILENAME */}
                     <input
-                        placeholder="Accepts only jpeg and png"
-                        type="file"
-                        accept="image/*"
-                        {...register("image")}
-                        onChange={(e) => {
-                            handleImageChange(e);
-                            register("image").onChange(e); // keep RHF in sync
-                        }}
+                        type="text"
+                        placeholder="Image filename (e.g., beach.jpg) or full URL"
+                        {...register("image", {
+                            required: "Image is required",
+                            onChange: (e) => setPreview(formatPreview(e.target.value))
+                        })}
                     />
+                    <div className="formError">{formState.errors.image?.message}</div>
 
                     <SpinnerButton
                         buttonText="Update Vacation"

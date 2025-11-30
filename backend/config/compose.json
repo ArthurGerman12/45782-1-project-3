@@ -1,18 +1,5 @@
 {
     "db": {
         "host": "database"
-    },
-    "s3": {
-        "baseUrl": "http://localstack:4566",
-        "connection": {
-        "endpoint": "http://localstack:4566",
-        "region": "us-east-1",
-        "credentials": {
-            "accessKeyId": "test",
-            "secretAccessKey": "test"
-        },
-        "forcePathStyle": true
     }
-  }
 }
-

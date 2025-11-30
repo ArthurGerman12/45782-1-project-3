@@ -4,6 +4,6 @@ export default interface VacationDraft {
     price: number;        // number, not string
     startDate: string;    // yyyy-mm-dd (from <input type="date">)
     endDate: string;      // yyyy-mm-dd
-    image?: FileList;     // file upload
+    image?: string;       // image URL or filename
     isFollowed: boolean
 }

@@ -18,14 +18,15 @@ export default function NewVacation() {
     const { register, handleSubmit, formState} = useForm<VacationDraft>();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [preview, setPreview] = useState<string | null>(null);
+    const apiBase = import.meta.env.VITE_REST_SERVER_URL.replace(/\/$/, "");
 
     const navigate = useNavigate();
     const dispatch = useAppDispatcher();
 
-    function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const file = e.target.files?.[0];
-        if (!file) return setPreview(null);
-        setPreview(URL.createObjectURL(file));
+    function formatPreview(value: string) {
+        if (!value) return null;
+        if (value.startsWith("http")) return value;
+        return `${apiBase}/images/${value}`;
     }
 
     async function submit(draft: VacationDraft) {
@@ -48,7 +49,7 @@ export default function NewVacation() {
 
     return (
         <div className="EditVacation">
-            <form className="edit-form" onSubmit={handleSubmit(submit)} encType="multipart/form-data">
+            <form className="edit-form" onSubmit={handleSubmit(submit)}>
 
                 {/* IMAGE PREVIEW */}
                 {preview && (
@@ -104,16 +105,16 @@ export default function NewVacation() {
                 />
                 <div className="formError">{formState.errors.endDate?.message}</div>
 
-                {/* IMAGE UPLOAD */}
+                {/* IMAGE URL OR FILENAME */}
                 <input
-                    type="file"
-                    accept="image/*"
-                    {...register("image")}
-                    onChange={(e) => {
-                        handleImageChange(e);
-                        register("image").onChange(e);
-                    }}
+                    type="text"
+                    placeholder="Image filename (e.g., beach.jpg) or full URL"
+                    {...register("image", {
+                        required: "Image is required",
+                        onChange: (e) => setPreview(formatPreview(e.target.value))
+                    })}
                 />
+                <div className="formError">{formState.errors.image?.message}</div>
 
                 <SpinnerButton
                     buttonText="Create Vacation"

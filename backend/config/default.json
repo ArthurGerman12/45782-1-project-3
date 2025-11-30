@@ -11,19 +11,5 @@
         "username": "root",
         "password": "",
         "database": "vacations"
-    },
-    "s3": {
-        "baseUrl": "http://localhost:4566",
-        "bucket": "vacation-images",
-        "isLocalStack": true,
-        "connection": {
-            "endpoint": "http://localhost:4566",
-            "region": "us-east-1",
-            "credentials": {
-                "accessKeyId": "test",
-                "secretAccessKey": "test"
-            },
-            "forcePathStyle": true
-        }
     }
 }

@@ -4,6 +4,13 @@ import User from "../../models/User";
 import vacationIncludes from "../common/vacation-includes";
 import sequelize from "../../db/sequelize";
 
+const imageBaseUrl = process.env.PUBLIC_IMAGE_BASE_URL || "http://localhost:3000";
+
+function buildImageUrl(image?: string) {
+    if (!image) return undefined;
+    if (image.startsWith("http")) return image;
+    return `${imageBaseUrl}/images/${image}`;
+}
 
 export async function deleteVacation(req: Request<{ vacationId: string }>, res: Response, next: NextFunction) {
     try {
@@ -21,8 +28,7 @@ export async function deleteVacation(req: Request<{ vacationId: string }>, res: 
 
 export async function createVacation(req: Request, res: Response, next: NextFunction) {
     try {
-        // Allow uploads AND URL
-        const image = req.image ?? req.body.image;
+        const image = buildImageUrl(req.body.image);
 
         if (!image) {
             return res.status(400).json({ message: "Image is required" });
@@ -100,8 +106,8 @@ export async function updateVacation(req: Request<{ vacationId: string }>, res: 
     vacation.endDate   = endDate   ? new Date(endDate)   : vacation.endDate;
     vacation.price = price ?? vacation.price;
 
-    // Handles fileUploader AND image URL
-    vacation.image = req.image ?? image ?? vacation.image;
+    const newImage = buildImageUrl(image);
+    vacation.image = newImage ?? vacation.image;
 
 
 
