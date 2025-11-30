@@ -95,7 +95,7 @@ export default function Vacation(props: VacationProps) {
         <div className="vacation-card">
             <div className="vacation-media">
                 {image ? (
-                    <img src={`${image}?v=${Date.now()}`} alt={destination} loading="lazy" />
+                    <img src={`${import.meta.env.VITE_S3_URL}${image}`} alt={destination} loading="lazy" />
                 ) : (
                     <div className="vacation-media__placeholder">
                         <span>No image available</span>
