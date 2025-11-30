@@ -5,6 +5,6 @@ export default interface Vacation {
     price: number;
     startDate: string;
     endDate: string;
-    image: string; // <-- MUST stay a string
+    image: string; 
     likesCount: number;
 }
