@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import Vacation from "../../models/Vacation";
 import User from "../../models/User";
-import { newVacationValidator } from "./validation";
-import socket from "../../io/io";
-import SocketMessages from "socket-enums-shaharsolllllll";
 import vacationIncludes from "../common/vacation-includes";
 import sequelize from "../../db/sequelize";
 

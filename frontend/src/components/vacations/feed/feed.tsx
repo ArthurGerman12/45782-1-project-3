@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import './Feed.css';
+import './feed.css';
 import Spinner from '../../common/spinner/Spinner';
 import useTitle from '../../hooks/use-title';
 import { useAppDispatcher, useAppSelector } from '../../../redux/hooks';

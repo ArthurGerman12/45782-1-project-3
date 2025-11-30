@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import User from "../../models/User";
 import Follow from "../../models/Follow";
-import socket from "../../io/io";
-import SocketMessages from "socket-enums-shaharsolllllll";
 import Vacation from "../../models/Vacation";
 
 
@@ -26,12 +24,6 @@ export async function follow(req: Request<{ id: string }>, res: Response, next: 
 
         const vacation = (await User.findByPk(req.params.id)).get({plain: true})
         const user = (await User.findByPk(req.userId)).get({plain: true})
-
-        socket.emit(SocketMessages.NewFollow, {
-            from: req.get('x-client-id'),
-            vacation,
-            user
-        })
 
     } catch (e) {
         if (e.message === 'follow already exists') return next({

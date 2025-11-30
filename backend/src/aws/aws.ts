@@ -29,7 +29,8 @@ export async function testUpload() {
                 Bucket: config.get<string>('s3.bucket'),
                 Key: 'test.txt',
                 ContentType: 'text/plain',
-                Body: 'hello world, localstack seems to work'
+                Body: 'hello world, localstack seems to work',
+                ACL: "public-read"
             }
         })
 

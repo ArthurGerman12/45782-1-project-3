@@ -29,7 +29,8 @@ export default async function fileUploader(req: Request, res: Response, next: Ne
         Bucket: bucket,
         Key: key,
         ContentType: file.mimetype,
-        Body: file.data
+        Body: file.data,
+        ACL: "public-read"         
       }
     });
 

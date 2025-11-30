@@ -11,6 +11,8 @@ import feedRouter from './routers/feed'
 import followRouter from './routers/follow'
 import authRouter from './routers/auth'
 import {hashAndSaltPassword} from './controllers/auth/controller'
+import { createAppBucketIfNotExists } from "./aws/aws";
+
 
 
 
@@ -47,14 +49,8 @@ app.use(responder);
 
 
 (async () => {
-    // synchronize database schema (not data) changes to the database
-    // i.e syncs our TypeScript models folder into the actual SQL Schema
-    // sequelize.sync({ force: true })
-    // await sequelize.sync({ force: process.argv[2] === 'sync' })
-    sequelize.sync({ alter: true });
-
-    
-    console.log(process.argv)
-
+    await sequelize.sync({ alter: true });
+    await createAppBucketIfNotExists();  // FIX
     app.listen(port, () => console.log(`${appName} started on port ${port}`))
-})()
+})();
+
