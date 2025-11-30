@@ -40,6 +40,9 @@ export default async function fileUploader(req: Request, res: Response, next: Ne
 
     req.image = `${baseUrl}/${bucket}/${key}`;
 
+
+    req.image = `http://localhost:4566/${bucket}/${key}`;
+
     return next();
   } catch (err) {
     console.error("FILE UPLOAD ERROR:", err);
