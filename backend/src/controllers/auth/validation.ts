@@ -6,5 +6,6 @@ export const loginValidator = Joi.object({
 })
 
 export const signupValidator = loginValidator.keys({
-    name: Joi.string().min(2)
+    firstName: Joi.string().min(2).required(),
+    lastName: Joi.string().min(2).required()
 })
