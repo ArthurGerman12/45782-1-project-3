@@ -26,39 +26,6 @@ USE `vacations`;
 -- --------------------------------------------------------
 
 --
--- Table structure for table `follows`
---
-
-CREATE TABLE `follows` (
-  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `vacation_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `follows`
---
-
-INSERT INTO `follows` (`user_id`, `vacation_id`, `created_at`, `updated_at`) VALUES
-('07d3eaf6-fb90-4d7d-885b-ef8b70186a07', '31e9694a-0ef1-4060-9b7f-1cd4d93c0c37', '2025-11-29 20:29:02', '2025-11-29 20:29:02'),
-('07d3eaf6-fb90-4d7d-885b-ef8b70186a07', '3b481721-2cfa-4bf5-a97f-450b67f73cec', '2025-11-29 20:28:43', '2025-11-29 20:28:43'),
-('07d3eaf6-fb90-4d7d-885b-ef8b70186a07', '4a7cd2fd-ff13-4dad-82bb-d96b9a5b9fc9', '2025-11-28 19:16:18', '2025-11-28 19:16:18'),
-('18b1ed99-a99a-4e4b-a88b-e39d4c85e108', '31e9694a-0ef1-4060-9b7f-1cd4d93c0c37', '2025-11-22 05:06:18', '2025-11-22 05:06:18'),
-('292fcd3a-2593-48b7-bf83-d7a1b8c2e109', '3b481721-2cfa-4bf5-a97f-450b67f73cec', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
-('3ab9f95c-8080-491f-8db8-937a7c1fc10a', '4a7cd2fd-ff13-4dad-82bb-d96b9a5b9fc9', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
-('4d59e6cd-7e93-4c0a-92d6-44c32ea9d20b', '558ec663-3d44-4ad3-8edf-df95419a7e8e', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
-('5e736ff0-2e9d-45f1-92ea-c0b1227d621c', '6c4e5c0a-0b73-4cb0-8513-9ca6f1be4b88', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
-('63dc90b4-2c62-448e-8ddc-912f9da5621d', '71e9f0df-2c9d-411e-b188-8f900c05eb8e', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
-('7a11b6ef-7e44-4a13-a0e0-23613839e21e', '7e1f2f67-4e10-4a1a-8b7c-1f4fd0c8a6b1', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
-('89c147a0-5129-461d-8f82-748e23ebf21f', 'b184f1bb-13f6-4e77-92ad-d44da96dc8cd', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
-('90f0a8bd-6c9d-4ea6-bd0d-7f19ebd1c320', 'cd94a0d3-e7c0-4f46-b726-7b92bc4a8620', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
-('a122fbfb-74f6-4be2-965d-2b080b855321', 'e356d61e-09f4-4d02-b651-e8770dff8bf3', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
-('b3394b90-6963-4d7e-888f-d29823a5c422', 'e68dfc8f-7a9d-4e22-bf4d-c66957d69542', '2025-11-22 00:45:16', '2025-11-22 00:45:16');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `users`
 --
 
@@ -134,6 +101,41 @@ INSERT INTO `vacations` (`vacation_id`, `destination`, `description`, `start_dat
 ('cd94a0d3-e7c0-4f46-b726-7b92bc4a8620', 'NEW YORK, USA', 'A bustling city offering iconic landmarks, diverse food, Broadway shows, and endless cultural experiences.', '2026-08-01 00:00:00', '2026-08-08 00:00:00', 2300, '2025-11-22 00:28:54', '2025-11-30 09:02:07', 'http://localhost:4566/vacation-images/1f919294-8469-47d3-ab19-3b00ebded27a.jpg'),
 ('e356d61e-09f4-4d02-b651-e8770dff8bf3', 'SYDNEY, AUSTRALIA', 'A coastal city famous for the Sydney Opera House, beaches, wildlife, and unforgettable outdoor adventures.', '2026-07-10 00:00:00', '2026-07-20 00:00:00', 2900, '2025-11-22 00:28:54', '2025-11-30 09:02:15', 'http://localhost:4566/vacation-images/83319143-e396-4fff-a16e-d6a37f953aa6.jpg'),
 ('e68dfc8f-7a9d-4e22-bf4d-c66957d69542', 'BARCELONA, SPAIN', 'A vibrant coastal city with unique architecture, warm beaches, delicious tapas, and lively cultural events.', '2026-04-18 00:00:00', '2026-04-26 00:00:00', 1900, '2025-11-22 00:28:54', '2025-11-30 09:02:24', 'http://localhost:4566/vacation-images/44a73ee5-8823-4715-9ba1-e1c6fedd702a.jpg');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `follows`
+--
+
+CREATE TABLE `follows` (
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `vacation_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `follows`
+--
+
+INSERT INTO `follows` (`user_id`, `vacation_id`, `created_at`, `updated_at`) VALUES
+('07d3eaf6-fb90-4d7d-885b-ef8b70186a07', '31e9694a-0ef1-4060-9b7f-1cd4d93c0c37', '2025-11-29 20:29:02', '2025-11-29 20:29:02'),
+('07d3eaf6-fb90-4d7d-885b-ef8b70186a07', '3b481721-2cfa-4bf5-a97f-450b67f73cec', '2025-11-29 20:28:43', '2025-11-29 20:28:43'),
+('07d3eaf6-fb90-4d7d-885b-ef8b70186a07', '4a7cd2fd-ff13-4dad-82bb-d96b9a5b9fc9', '2025-11-28 19:16:18', '2025-11-28 19:16:18'),
+('18b1ed99-a99a-4e4b-a88b-e39d4c85e108', '31e9694a-0ef1-4060-9b7f-1cd4d93c0c37', '2025-11-22 05:06:18', '2025-11-22 05:06:18'),
+('292fcd3a-2593-48b7-bf83-d7a1b8c2e109', '3b481721-2cfa-4bf5-a97f-450b67f73cec', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
+('3ab9f95c-8080-491f-8db8-937a7c1fc10a', '4a7cd2fd-ff13-4dad-82bb-d96b9a5b9fc9', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
+('4d59e6cd-7e93-4c0a-92d6-44c32ea9d20b', '558ec663-3d44-4ad3-8edf-df95419a7e8e', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
+('5e736ff0-2e9d-45f1-92ea-c0b1227d621c', '6c4e5c0a-0b73-4cb0-8513-9ca6f1be4b88', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
+('63dc90b4-2c62-448e-8ddc-912f9da5621d', '71e9f0df-2c9d-411e-b188-8f900c05eb8e', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
+('7a11b6ef-7e44-4a13-a0e0-23613839e21e', '7e1f2f67-4e10-4a1a-8b7c-1f4fd0c8a6b1', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
+('89c147a0-5129-461d-8f82-748e23ebf21f', 'b184f1bb-13f6-4e77-92ad-d44da96dc8cd', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
+('90f0a8bd-6c9d-4ea6-bd0d-7f19ebd1c320', 'cd94a0d3-e7c0-4f46-b726-7b92bc4a8620', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
+('a122fbfb-74f6-4be2-965d-2b080b855321', 'e356d61e-09f4-4d02-b651-e8770dff8bf3', '2025-11-22 00:45:16', '2025-11-22 00:45:16'),
+('b3394b90-6963-4d7e-888f-d29823a5c422', 'e68dfc8f-7a9d-4e22-bf4d-c66957d69542', '2025-11-22 00:45:16', '2025-11-22 00:45:16');
+
+-- --------------------------------------------------------
 
 --
 -- Indexes for dumped tables
